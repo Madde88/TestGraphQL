@@ -1,5 +1,5 @@
 
-using TestGraphQL.Data.Configurations;
+
 
 namespace TestGraphQL.Data;
 
@@ -21,5 +21,5 @@ public class ApplicationDbContext : DbContext
     }
 
     // Add the DbSets for each of our models we would like at our database
-    public DbSet<Dog> Dogs { get; set; }
+    public DbSet<Dog> Dogs { get; set; } = default!;
 }

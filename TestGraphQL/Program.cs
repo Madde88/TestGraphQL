@@ -1,39 +1,39 @@
-using TestGraphQL.Repository;
+
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddScoped<IDogRepository, DogRepository>();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddPooledDbContextFactory<ApplicationDbContext>(options =>
     options.UseInMemoryDatabase("Test"));
-builder.Services.AddGraphQLServer().AddQueryType<Query>().AddProjections().AddFiltering().AddSorting();
 
+builder.Services.AddGraphQLServer()
+    .AddMutationConventions(applyToAllMutations: true)
+    .RegisterDbContext<ApplicationDbContext>(DbContextKind.Pooled)
+    .AddQueryType<Query>().AddProjections().AddFiltering().AddSorting()
+    .AddMutationType<Mutation>();
 
+builder.Services.AddTransient<IDogRepository,DogRepository>();
+ 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
+    using (var dbContext = dbContextFactory.CreateDbContext())
+    {
+        dbContext.Database.EnsureCreated();
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.EnsureCreated();
+    app.UseDeveloperExceptionPage();
 }
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseRouting();
+app.MapGraphQL();
 
-app.MapControllers();
-app.MapGraphQL("/graphql");
 
 app.Run();
