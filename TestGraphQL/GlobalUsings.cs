@@ -11,5 +11,6 @@ global using System.Reflection;
 global using HotChocolate.Types;
 global using HotChocolate.Types.Descriptors;
 global using TestGraphQL.GraphQlExtensions;
+global using TestGraphQL.Exceptions;
 
 

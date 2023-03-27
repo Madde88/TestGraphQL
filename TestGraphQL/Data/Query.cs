@@ -3,9 +3,11 @@ namespace TestGraphQL.Data;
 public class Query
 {
     private readonly IDogRepository _dogRepository;
-    public Query(IDogRepository dogRepository)
+    private readonly IOwnerRepository _ownerRepository;
+    public Query(IDogRepository dogRepository, IOwnerRepository ownerRepository)
     {
         _dogRepository = dogRepository;
+        _ownerRepository = ownerRepository;
     }
     [UseProjection]
     [UseFiltering]
@@ -15,4 +17,10 @@ public class Query
     
     public Task<Dog> GetDogById([ID] Guid id) =>
         _dogRepository.GetDogByIdAsync(id);
+    
+    public Task<List<Owner>> GetOwners() =>
+        _ownerRepository.GetOwnersAsync();
+    
+    public Task<Owner> GetOwnerById([ID] Guid id) =>
+        _ownerRepository.GetOwnerByIdAsync(id);
 }

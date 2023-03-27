@@ -13,6 +13,7 @@ builder.Services.AddGraphQLServer()
     .AddMutationType<Mutation>();
 
 builder.Services.AddTransient<IDogRepository,DogRepository>();
+builder.Services.AddTransient<IOwnerRepository,OwnerRepository>();
  
 var app = builder.Build();
 
